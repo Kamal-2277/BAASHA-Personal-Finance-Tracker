@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BAASHA - Personal Finance Tracker{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        },
+                        brand: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            gold: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/baasha_crown.png') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Brand Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('index') }}" class="flex items-center space-x-2.5 group">
+                        <img src="{{ url_for('static', filename='img/baasha_crown.png') }}" alt="BAASHA Logo" class="h-10 w-auto object-contain rounded-lg p-0.5 bg-slate-800/80 border border-slate-700/80 group-hover:scale-105 transition-transform shadow-md">
+                        <div>
+                            <span class="text-2xl font-black tracking-wider text-white font-heading">BAASHA</span>
+                            <span class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold block -mt-1">Master Your Money</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <a href="{{ url_for('index') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-2 {% if request.endpoint == 'index' %}text-white bg-slate-800 border border-slate-700/80{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('transactions') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-2 {% if request.endpoint == 'transactions' %}text-white bg-slate-800 border border-slate-700/80{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Transactions</span>
+                    </a>
+                    <a href="{{ url_for('analytics_page') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-2 {% if request.endpoint == 'analytics_page' %}text-white bg-slate-800 border border-slate-700/80{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Graphs & Trends</span>
+                    </a>
+                    <a href="{{ url_for('insights_page') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-2 {% if request.endpoint == 'insights_page' %}text-white bg-slate-800 border border-slate-700/80{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>Insights & Suggestions</span>
+                    </a>
+                    <a href="{{ url_for('about') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center space-x-2 {% if request.endpoint == 'about' %}text-white bg-slate-800 border border-slate-700/80{% else %}text-slate-300 hover:text-white hover:bg-slate-800/60{% endif %}">
+                        <i class="fa-solid fa-users"></i>
+                        <span>About Team</span>
+                    </a>
+                </nav>
+
+                <!-- Right Action Buttons -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    {% if current_user %}
+                        <!-- User LPA & Profile Badge -->
+                        <div class="hidden lg:flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/80">
+                            <i class="fa-solid fa-circle-user text-emerald-400 text-sm"></i>
+                            <div class="text-left text-xs">
+                                <span class="text-white font-bold block leading-tight">{{ current_user.name }}</span>
+                                <span class="text-[10px] text-amber-400 font-bold block">{{ current_user.annual_income_lpa }} LPA</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <button onclick="openModal('addTransactionModal')" class="inline-flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-2 rounded-xl shadow-md transition-all hover:scale-105">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="hidden sm:inline">Add Record</span>
+                    </button>
+                    
+                    <button onclick="openModal('quickSettingsModal')" title="Budget Settings" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors border border-slate-700">
+                        <i class="fa-solid fa-sliders"></i>
+                    </button>
+
+                    {% if current_user %}
+                        <a href="{{ url_for('logout_route') }}" title="Sign Out" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-rose-900/60 hover:text-rose-400 text-slate-400 flex items-center justify-center transition-colors border border-slate-700">
+                            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white border border-slate-700">
+                            Sign In
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Strip -->
+            <div class="md:hidden flex items-center justify-around py-2 border-t border-slate-800 text-xs font-medium text-slate-300">
+                <a href="{{ url_for('index') }}" class="flex flex-col items-center py-1 {% if request.endpoint == 'index' %}text-emerald-400 font-bold{% endif %}">
+                    <i class="fa-solid fa-gauge-high text-base mb-1"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('transactions') }}" class="flex flex-col items-center py-1 {% if request.endpoint == 'transactions' %}text-emerald-400 font-bold{% endif %}">
+                    <i class="fa-solid fa-list-check text-base mb-1"></i>
+                    <span>Ledger</span>
+                </a>
+                <a href="{{ url_for('analytics_page') }}" class="flex flex-col items-center py-1 {% if request.endpoint == 'analytics_page' %}text-emerald-400 font-bold{% endif %}">
+                    <i class="fa-solid fa-chart-pie text-base mb-1"></i>
+                    <span>Graphs</span>
+                </a>
+                <a href="{{ url_for('insights_page') }}" class="flex flex-col items-center py-1 {% if request.endpoint == 'insights_page' %}text-emerald-400 font-bold{% endif %}">
+                    <i class="fa-solid fa-lightbulb text-base mb-1"></i>
+                    <span>Insights</span>
+                </a>
+                <a href="{{ url_for('about') }}" class="flex flex-col items-center py-1 {% if request.endpoint == 'about' %}text-emerald-400 font-bold{% endif %}">
+                    <i class="fa-solid fa-users text-base mb-1"></i>
+                    <span>Team</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Alerts Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-alert mb-3 p-4 rounded-xl flex items-center justify-between shadow-sm border transition-all duration-300 {% if category == 'error' %}bg-rose-50 border-rose-200 text-rose-800{% elif category == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-800{% elif category == 'warning' %}bg-amber-50 border-amber-200 text-amber-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid {% if category == 'error' %}fa-circle-xmark text-rose-500{% elif category == 'success' %}fa-circle-check text-emerald-500{% elif category == 'warning' %}fa-triangle-exclamation text-amber-500{% else %}fa-circle-info text-blue-500{% endif %} text-lg"></i>
+                            <span class="text-sm font-semibold">{{ message }}</span>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Dynamic Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <img src="{{ url_for('static', filename='img/baasha_crown.png') }}" alt="BAASHA" class="h-10 w-auto rounded-lg bg-slate-800 p-1 border border-slate-700">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <p class="text-white font-bold text-base font-heading">BAASHA — Master Your Money</p>
+                            <span class="text-[10px] text-amber-400 font-bold px-2 py-0.5 rounded bg-amber-950/60 border border-amber-800/60">SRMIST</span>
+                        </div>
+                        <p class="text-xs text-slate-400">SRM Institute of Science and Technology &bull; 2nd Year CSE Core Department</p>
+                    </div>
+                </div>
+
+                <!-- Team Recognition Badge -->
+                <div class="text-center md:text-right">
+                    <p class="text-xs text-slate-300 font-semibold mb-1">
+                        Investigatory Project Team (2nd Year CSE Core):
+                    </p>
+                    <div class="flex items-center justify-center md:justify-end space-x-2 text-xs">
+                        <a href="{{ url_for('about') }}" class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold border border-slate-700 transition-colors">
+                            <img src="{{ url_for('static', filename='img/kamallesh.jpg') }}" alt="Kamallesh" class="w-4 h-4 rounded-full object-cover">
+                            <span>Kamallesh</span>
+                        </a>
+                        <a href="{{ url_for('about') }}" class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold border border-slate-700 transition-colors">
+                            <img src="{{ url_for('static', filename='img/janardhanan.jpg') }}" alt="Janardhanan" class="w-4 h-4 rounded-full object-cover">
+                            <span>Janardhanan</span>
+                        </a>
+                        <a href="{{ url_for('about') }}" class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-blue-400 font-bold border border-slate-700 transition-colors">
+                            <img src="{{ url_for('static', filename='img/suriya.jpg') }}" alt="Suriya" class="w-4 h-4 rounded-full object-cover">
+                            <span>Suriya</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
+                <p>&copy; {{ current_year }} BAASHA Personal Finance Tracker &bull; SRM Institute of Science and Technology.</p>
+                <div class="flex items-center space-x-4 mt-2 sm:mt-0">
+                    <a href="{{ url_for('analytics_page') }}" class="hover:text-emerald-400 transition-colors">Weekly/Monthly Graphs</a>
+                    <a href="{{ url_for('insights_page') }}" class="hover:text-emerald-400 transition-colors">50/30/20 Insights</a>
+                    <a href="{{ url_for('about') }}" class="hover:text-emerald-400 transition-colors">About Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Add Transaction Modal -->
+    <div id="addTransactionModal" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4 flex items-center justify-between text-white">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </div>
+                    <h3 class="text-lg font-bold font-heading">Record New Transaction</h3>
+                </div>
+                <button onclick="closeModal('addTransactionModal')" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Form Body -->
+            <form action="{{ url_for('add_transaction_route') }}" method="POST" class="p-6 space-y-4">
+                <!-- Transaction Type Toggle -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Transaction Type</label>
+                    <select id="add-type" name="type" required onchange="updateCategoryDropdown('add-type', 'add-category')" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-semibold text-slate-800 bg-white">
+                        <option value="expense" selected>💸 Expense</option>
+                        <option value="income">💰 Income</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Category -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Category</label>
+                        <select id="add-category" name="category" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-medium bg-white">
+                            {% for cat in categories['expense'] %}
+                                <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Amount -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Amount ({{ currency }})</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-bold">{{ currency }}</span>
+                            <input type="number" step="0.01" min="0.01" name="amount" required placeholder="0.00" class="w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-bold text-slate-800">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Date</label>
+                        <input type="date" name="date" value="{{ today }}" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-medium">
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Payment Method</label>
+                        <select name="payment_method" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-medium bg-white">
+                            {% for pm in payment_methods %}
+                                <option value="{{ pm }}" {% if loop.first %}selected{% endif %}>{{ pm }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Description / Note -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Description / Notes</label>
+                    <input type="text" name="description" placeholder="e.g. Swiggy dinner, Monthly Metro pass, Freelance project" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm">
+                </div>
+
+                <!-- Recurring Checkbox -->
+                <div class="flex items-center space-x-2 pt-1">
+                    <input type="checkbox" id="add-recurring" name="is_recurring" value="1" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4">
+                    <label for="add-recurring" class="text-xs text-slate-600 font-medium">Is this a recurring monthly transaction? (e.g. Rent, Salary, Netflix)</label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addTransactionModal')" class="px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-semibold text-sm transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-700/20 transition-all hover:scale-105">
+                        Save Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div id="editTransactionModal" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-pen-to-square text-sm"></i>
+                    </div>
+                    <h3 class="text-lg font-bold font-heading">Edit Transaction</h3>
+                </div>
+                <button onclick="closeModal('editTransactionModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="edit-tx-form" action="" method="POST" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Transaction Type</label>
+                    <select id="edit-type" name="type" required onchange="updateCategoryDropdown('edit-type', 'edit-category')" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-800 bg-white">
+                        <option value="expense">💸 Expense</option>
+                        <option value="income">💰 Income</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Category</label>
+                        <select id="edit-category" name="category" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white">
+                            {% for cat in categories['expense'] %}
+                                <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Amount ({{ currency }})</label>
+                        <input type="number" step="0.01" min="0.01" id="edit-amount" name="amount" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-800">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Date</label>
+                        <input type="date" id="edit-date" name="date" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Payment Method</label>
+                        <select id="edit-payment-method" name="payment_method" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white">
+                            {% for pm in payment_methods %}
+                                <option value="{{ pm }}">{{ pm }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Description</label>
+                    <input type="text" id="edit-description" name="description" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm">
+                </div>
+
+                <div class="flex items-center space-x-2 pt-1">
+                    <input type="checkbox" id="edit-recurring" name="is_recurring" value="1" class="rounded text-emerald-600 h-4 w-4">
+                    <label for="edit-recurring" class="text-xs text-slate-600 font-medium">Recurring Monthly Transaction</label>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('editTransactionModal')" class="px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-semibold text-sm">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-all">
+                        Update Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Settings Modal -->
+    <div id="quickSettingsModal" class="modal-backdrop fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
+                <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-sliders text-emerald-400"></i>
+                    <h3 class="text-lg font-bold font-heading">Budget & Preferences</h3>
+                </div>
+                <button onclick="closeModal('quickSettingsModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form action="{{ url_for('update_settings_route') }}" method="POST" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Monthly Spending Budget</label>
+                    <input type="number" step="500" name="monthly_budget" value="45000" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-800">
+                    <p class="text-xs text-slate-500 mt-1">This sets your monthly limit and calculates your budget progress bar.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Currency Symbol</label>
+                    <select name="currency_symbol" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white">
+                        <option value="₹" selected>₹ (INR - Indian Rupee)</option>
+                        <option value="$">$ (USD - US Dollar)</option>
+                        <option value="€">€ (EUR - Euro)</option>
+                        <option value="£">£ (GBP - British Pound)</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('quickSettingsModal')" class="px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-semibold text-sm">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md">
+                        Save Preferences
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

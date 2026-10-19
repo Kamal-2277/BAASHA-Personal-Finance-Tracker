@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+
+{% block title %}BAASHA - Smart Financial Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Hero / Welcome Header -->
+    <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
+        <div class="absolute -right-12 -top-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute right-20 -bottom-16 w-56 h-56 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex items-start sm:items-center space-x-4">
+                <img src="{{ url_for('static', filename='img/baasha_crown.png') }}" alt="BAASHA Crown Logo" class="h-16 sm:h-20 w-auto object-contain p-1.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-xl flex-shrink-0">
+                <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md bg-emerald-950 border border-emerald-800 text-emerald-400 text-[11px] font-bold uppercase tracking-wider">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1"></span>
+                            Intelligent Financial Hub
+                        </span>
+                        {% if current_user %}
+                            <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
+                                {{ current_user.annual_income_lpa }} LPA
+                            </span>
+                        {% endif %}
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-black font-heading tracking-tight text-white">
+                        BAASHA <span class="text-amber-400 text-xl sm:text-2xl font-bold ml-1 font-sans tracking-normal uppercase">&bull; Master Your Money</span>
+                    </h1>
+                    <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl">
+                        {% if current_user %}
+                            Welcome back, <strong>{{ current_user.name }}</strong>! Tracking cash flow and future wealth.
+                        {% else %}
+                            Designed by <strong>Kamallesh</strong>, <strong>Janardhanan</strong>, and <strong>Suriya</strong> to track cash flow, analyze spending habits, and build financial freedom.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Action Pills -->
+            <div class="flex flex-wrap items-center gap-3">
+                <button onclick="openModal('addTransactionModal')" class="inline-flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg transition-transform hover:scale-105 text-sm">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Quick Add</span>
+                </button>
+                <a href="{{ url_for('analytics_page') }}" class="inline-flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition-colors text-sm">
+                    <i class="fa-solid fa-chart-line text-amber-400"></i>
+                    <span>View All Graphs</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top KPI Financial Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        <!-- Net Balance -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 hover-lift relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Net Cash Balance</span>
+                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <i class="fa-solid fa-wallet text-base"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-2xl sm:text-3xl font-black text-slate-900 font-heading">
+                    {{ currency }}{{ '{:,.2f}'.format(summary.net_balance) }}
+                </span>
+            </div>
+            <div class="mt-2 flex items-center text-xs text-slate-500 space-x-2">
+                <span class="text-emerald-600 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> Lifetime Net</span>
+                <span>&bull;</span>
+                <span>{{ summary.total_transactions }} records</span>
+            </div>
+        </div>
+
+        <!-- Annual Total Income (Converted to LPA) -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 hover-lift">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Annual Total Income</span>
+                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <i class="fa-solid fa-money-bill-trend-up text-base"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-2xl sm:text-3xl font-black text-emerald-600 font-heading">
+                    {{ summary.annual_income_lpa }} LPA
+                </span>
+            </div>
+            <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
+                <span>Monthly: +{{ currency }}{{ '{:,.0f}'.format(summary.curr_month_income) }}</span>
+                {% if current_user and current_user.has_business %}
+                    <span class="text-amber-600 font-bold text-[10px]" title="Includes {{ current_user.business_name }}">+Business</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Monthly Expense -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 hover-lift">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">This Month's Spend</span>
+                <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                    <i class="fa-solid fa-receipt text-base"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-2xl sm:text-3xl font-black text-rose-600 font-heading">
+                    -{{ currency }}{{ '{:,.2f}'.format(summary.curr_month_expense) }}
+                </span>
+            </div>
+            <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
+                <span>Budget: {{ currency }}{{ '{:,.0f}'.format(summary.monthly_budget) }}</span>
+                <span class="font-bold {% if summary.budget_used_pct > 90 %}text-rose-600{% elif summary.budget_used_pct > 70 %}text-amber-600{% else %}text-emerald-600{% endif %}">
+                    {{ summary.budget_used_pct }}%
+                </span>
+            </div>
+        </div>
+
+        <!-- Savings Rate & Health -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 hover-lift">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Savings Rate</span>
+                <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <i class="fa-solid fa-piggy-bank text-base"></i>
+                </div>
+            </div>
+            <div class="mt-3 flex items-baseline space-x-2">
+                <span class="text-2xl sm:text-3xl font-black text-slate-900 font-heading">
+                    {{ summary.savings_rate }}%
+                </span>
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800">
+                    {{ insights.health_grade }}
+                </span>
+            </div>
+            <div class="mt-2 text-xs text-slate-500">
+                <span>Monthly Net: {{ currency }}{{ '{:,.0f}'.format(summary.curr_month_net) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Budget Bar -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div>
+                <h3 class="font-bold text-slate-900 text-base font-heading">Monthly Budget Gauge</h3>
+                <p class="text-xs text-slate-500">Track current month expenses against your targeted spending limit</p>
+            </div>
+            <div class="text-right">
+                <span class="text-xs text-slate-500 font-medium">Safe Remaining Buffer:</span>
+                <span class="text-sm font-bold text-emerald-700 ml-1">{{ currency }}{{ '{:,.2f}'.format(summary.budget_remaining) }}</span>
+            </div>
+        </div>
+
+        <!-- Progress Bar Track -->
+        <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-200">
+            <div class="h-full rounded-full transition-all duration-700 {% if summary.budget_used_pct > 90 %}bg-rose-500{% elif summary.budget_used_pct > 75 %}bg-amber-500{% else %}bg-emerald-500{% endif %}" style="width: {{ [summary.budget_used_pct, 100]|min }}%"></div>
+        </div>
+        
+        <div class="flex items-center justify-between text-xs text-slate-500 mt-2 font-medium">
+            <span>Spent: {{ currency }}{{ '{:,.2f}'.format(summary.curr_month_expense) }}</span>
+            <span>Target: {{ currency }}{{ '{:,.2f}'.format(summary.monthly_budget) }}</span>
+        </div>
+    </div>
+
+    <!-- Charts Preview Grid (Weekly & Category) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- 7-Day Weekly Spending Chart -->
+        <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <h3 class="font-bold text-slate-900 text-base font-heading">Weekly Expense Flow (7 Days)</h3>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ weekly_data.week_range }} &bull; Current vs Last Week</p>
+                </div>
+                <a href="{{ url_for('analytics_page') }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center space-x-1">
+                    <span>Full Analytics</span>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </a>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="h-64 w-full">
+                <canvas id="weeklyExpensesChart"></canvas>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 text-center text-xs">
+                <div>
+                    <span class="text-slate-400 block">Weekly Total</span>
+                    <span class="font-bold text-slate-800 text-sm">{{ currency }}{{ '{:,.0f}'.format(weekly_data.total_expense) }}</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block">Peak Spend Day</span>
+                    <span class="font-bold text-slate-800 text-sm">{{ weekly_data.peak_day }}</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block">WoW Trend</span>
+                    <span class="font-bold text-sm {% if weekly_data.growth_pct > 0 %}text-rose-600{% else %}text-emerald-600{% endif %}">
+                        {{ '+' if weekly_data.growth_pct > 0 else '' }}{{ weekly_data.growth_pct }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Category Doughnut -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-900 text-base font-heading">Weekly Categories</h3>
+                    <span class="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">Breakdown</span>
+                </div>
+                <div class="h-56 relative flex items-center justify-center">
+                    {% if weekly_data.categories %}
+                        <canvas id="weeklyCategoryChart"></canvas>
+                    {% else %}
+                        <div class="text-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-chart-pie text-3xl mb-2 text-slate-300"></i>
+                            <p>No expenses recorded this week.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Insight Callout -->
+            {% if insights.suggestions %}
+            <div class="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200/60 text-xs text-amber-900 flex items-start space-x-2.5">
+                <i class="fa-solid fa-lightbulb text-amber-500 mt-0.5 text-sm"></i>
+                <div>
+                    <span class="font-bold block">{{ insights.suggestions[0].title }}</span>
+                    <span class="text-amber-800 line-clamp-2 text-[11px]">{{ insights.suggestions[0].description }}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Transactions & Savings Goals Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Recent Transactions Table (2 cols) -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base font-heading">Recent Activity</h3>
+                    <p class="text-xs text-slate-500">Latest financial movements recorded</p>
+                </div>
+                <a href="{{ url_for('transactions') }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center space-x-1">
+                    <span>View All Ledger</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-[11px] tracking-wider border-b border-slate-100">
+                        <tr>
+                            <th class="px-5 py-3">Category & Details</th>
+                            <th class="px-4 py-3">Method</th>
+                            <th class="px-4 py-3">Date</th>
+                            <th class="px-5 py-3 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for tx in recent_transactions %}
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="px-5 py-3.5">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs {% if tx.type == 'income' %}bg-emerald-100 text-emerald-700{% else %}bg-slate-100 text-slate-700{% endif %}">
+                                            <i class="fa-solid {% if tx.type == 'income' %}fa-arrow-down-left{% else %}fa-arrow-up-right{% endif %}"></i>
+                                        </div>
+                                        <div>
+                                            <span class="font-semibold text-slate-900 block text-xs sm:text-sm">{{ tx.category }}</span>
+                                            <span class="text-slate-400 text-xs truncate max-w-xs block">{{ tx.description or 'No note' }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3.5 text-xs text-slate-600">
+                                    <span class="px-2 py-0.5 bg-slate-100 rounded text-[11px] font-medium">{{ tx.payment_method }}</span>
+                                </td>
+                                <td class="px-4 py-3.5 text-xs text-slate-500 whitespace-nowrap">
+                                    {{ tx.date }}
+                                </td>
+                                <td class="px-5 py-3.5 text-right font-bold text-sm whitespace-nowrap {% if tx.type == 'income' %}text-emerald-600{% else %}text-slate-900{% endif %}">
+                                    {{ '+' if tx.type == 'income' else '-' }}{{ currency }}{{ '{:,.2f}'.format(tx.amount) }}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="px-5 py-8 text-center text-slate-400 text-sm">
+                                    No transactions recorded yet. Click "+ Add Transaction" to start!
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Savings Goals Card -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-900 text-base font-heading">Savings Targets</h3>
+                    <a href="{{ url_for('insights_page') }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-700">Manage</a>
+                </div>
+
+                <div class="space-y-4">
+                    {% for goal in savings_goals %}
+                        {% set pct = [((goal.current_amount / goal.target_amount) * 100)|round(1), 100.0]|min %}
+                        <div class="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50">
+                            <div class="flex items-center justify-between text-xs mb-1.5">
+                                <span class="font-bold text-slate-800">{{ goal.title }}</span>
+                                <span class="font-bold text-emerald-600">{{ pct }}%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden mb-1.5">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: {{ pct }}%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500">
+                                <span>{{ currency }}{{ '{:,.0f}'.format(goal.current_amount) }} saved</span>
+                                <span>Target: {{ currency }}{{ '{:,.0f}'.format(goal.target_amount) }}</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-xs text-slate-400 text-center py-6">No savings goals created yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- College Project Attribution Footer Banner -->
+            <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                <span class="text-slate-400 font-medium">Investigatory College Project by:</span>
+                <div class="flex items-center space-x-2">
+                    <a href="{{ url_for('about') }}" class="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-700 font-bold transition-colors border border-slate-200">
+                        <img src="{{ url_for('static', filename='img/kamallesh.jpg') }}" alt="Kamallesh" class="w-4 h-4 rounded-full object-cover">
+                        <span>Kamallesh</span>
+                    </a>
+                    <a href="{{ url_for('about') }}" class="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-slate-50 hover:bg-amber-50 text-slate-800 hover:text-amber-700 font-bold transition-colors border border-slate-200">
+                        <img src="{{ url_for('static', filename='img/janardhanan.jpg') }}" alt="Janardhanan" class="w-4 h-4 rounded-full object-cover">
+                        <span>Janardhanan</span>
+                    </a>
+                    <a href="{{ url_for('about') }}" class="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-slate-50 hover:bg-blue-50 text-slate-800 hover:text-blue-700 font-bold transition-colors border border-slate-200">
+                        <img src="{{ url_for('static', filename='img/suriya.jpg') }}" alt="Suriya" class="w-4 h-4 rounded-full object-cover">
+                        <span>Suriya</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize Weekly Spend Chart
+        const weeklyLabels = {{ weekly_data.labels|tojson }};
+        const currentWeekData = {{ weekly_data.current_week_data|tojson }};
+        const prevWeekData = {{ weekly_data.prev_week_data|tojson }};
+        renderWeeklyExpensesChart('weeklyExpensesChart', weeklyLabels, currentWeekData, prevWeekData);
+
+        // Initialize Weekly Category Doughnut
+        {% if weekly_data.categories %}
+            const catLabels = {{ weekly_data.categories|tojson }};
+            const catAmounts = {{ weekly_data.category_amounts|tojson }};
+            renderWeeklyCategoryChart('weeklyCategoryChart', catLabels, catAmounts);
+        {% endif %}
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,389 @@
+{% extends 'base.html' %}
+
+{% block title %}Graphs & Analytics - BAASHA Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header & Period Switcher -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">Expense Trends & Graphs</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">Multi-horizon visual analytics across weekly, monthly, and yearly cycles</p>
+        </div>
+
+        <!-- Timeframe Switcher Tabs -->
+        <div class="inline-flex p-1.5 bg-slate-200/80 rounded-2xl space-x-1 self-start sm:self-auto">
+            <button onclick="switchTab('weekly')" id="tab-btn-weekly" class="tab-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-bold">
+                <i class="fa-solid fa-calendar-week mr-1.5"></i> Weekly
+            </button>
+            <button onclick="switchTab('monthly')" id="tab-btn-monthly" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-900">
+                <i class="fa-solid fa-calendar-days mr-1.5"></i> Monthly
+            </button>
+            <button onclick="switchTab('yearly')" id="tab-btn-yearly" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-900">
+                <i class="fa-solid fa-calendar mr-1.5"></i> Yearly
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= 1. WEEKLY EXPENSE VIEW ================= -->
+    <div id="tab-content-weekly" class="tab-pane space-y-6">
+        
+        <!-- Weekly Summary Banner -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">This Week's Expenses</span>
+                <span class="text-2xl font-black text-rose-600 font-heading block mt-2">
+                    {{ currency }}{{ '{:,.2f}'.format(weekly.total_expense) }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">{{ weekly.week_range }}</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Previous Week Comparison</span>
+                <span class="text-2xl font-black text-slate-700 font-heading block mt-2">
+                    {{ currency }}{{ '{:,.2f}'.format(weekly.prev_total_expense) }}
+                </span>
+                <div class="flex items-center space-x-1.5 mt-1 text-xs">
+                    <span class="font-bold {% if weekly.growth_pct > 0 %}text-rose-600{% else %}text-emerald-600{% endif %}">
+                        {{ '+' if weekly.growth_pct > 0 else '' }}{{ weekly.growth_pct }}%
+                    </span>
+                    <span class="text-slate-400">vs last week</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Peak Expense Day</span>
+                <span class="text-xl font-black text-slate-900 font-heading block mt-2">
+                    {{ weekly.peak_day }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Highest single day outflow</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Daily Average Spend</span>
+                <span class="text-2xl font-black text-slate-900 font-heading block mt-2">
+                    {{ currency }}{{ '{:,.2f}'.format(weekly.total_expense / 7) }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Over 7-day period</span>
+            </div>
+        </div>
+
+        <!-- Weekly Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 7-day Comparison Bar Chart -->
+            <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base font-heading">Day-by-Day Weekly Expense Graph</h3>
+                        <p class="text-xs text-slate-500">Compares daily outlays this week vs. previous week</p>
+                    </div>
+                    <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-200">
+                        7 Days Active
+                    </span>
+                </div>
+
+                <div class="h-80 w-full">
+                    <canvas id="weeklyDetailedChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Weekly Categories Doughnut -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base font-heading mb-1">Weekly Categories</h3>
+                    <p class="text-xs text-slate-500 mb-4">Where your money went this week</p>
+
+                    <div class="h-64 relative flex items-center justify-center">
+                        {% if weekly.categories %}
+                            <canvas id="weeklyCategoryDetailedChart"></canvas>
+                        {% else %}
+                            <p class="text-xs text-slate-400">No category transactions this week.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between">
+                    <span>Active Categories:</span>
+                    <span class="font-bold text-slate-800">{{ weekly.categories|length }}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= 2. MONTHLY EXPENSE VIEW ================= -->
+    <div id="tab-content-monthly" class="tab-pane hidden space-y-6">
+        
+        <!-- Month / Year Selector Card -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h3 class="font-bold text-slate-900 text-lg font-heading">{{ monthly.month_name }} Expense Breakdown</h3>
+                <p class="text-xs text-slate-500">Day-by-day and 4-week expense analysis</p>
+            </div>
+
+            <form method="GET" action="{{ url_for('analytics_page') }}" class="flex items-center space-x-2">
+                <input type="hidden" name="tab" value="monthly">
+                <select name="month" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-white focus:ring-2 focus:ring-emerald-500">
+                    {% for m_idx in range(1, 13) %}
+                        <option value="{{ m_idx }}" {% if m_idx == selected_month %}selected{% endif %}>
+                            {{ ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][m_idx - 1] }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select name="year" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-white focus:ring-2 focus:ring-emerald-500">
+                    {% for yr in available_years %}
+                        <option value="{{ yr }}" {% if yr == selected_year %}selected{% endif %}>{{ yr }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-colors">
+                    Load Month
+                </button>
+            </form>
+        </div>
+
+        <!-- Monthly KPI Metrics -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Monthly Total Spent</span>
+                <span class="text-2xl font-black text-rose-600 font-heading block mt-2">
+                    {{ currency }}{{ '{:,.2f}'.format(monthly.total_expense) }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">{{ monthly.month_name }}</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Monthly Total Income</span>
+                <span class="text-2xl font-black text-emerald-600 font-heading block mt-2">
+                    +{{ currency }}{{ '{:,.2f}'.format(monthly.total_income) }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Deposits and earnings</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Net Monthly Savings</span>
+                <span class="text-2xl font-black {% if monthly.net_savings >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %} font-heading block mt-2">
+                    {{ currency }}{{ '{:,.2f}'.format(monthly.net_savings) }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Surplus saved this month</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Average Daily Burn</span>
+                <span class="text-2xl font-black text-slate-900 font-heading block mt-2">
+                    {{ currency }}{{ '{:,.2f}'.format(monthly.avg_daily_spend) }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Per day over the month</span>
+            </div>
+        </div>
+
+        <!-- Monthly Timeline Chart (Daily + Cumulative Line) -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base font-heading">Daily Spending & Cumulative Trajectory</h3>
+                    <p class="text-xs text-slate-500">Bars show daily spend; line depicts accumulated spend over the days of the month</p>
+                </div>
+            </div>
+
+            <div class="h-80 w-full">
+                <canvas id="monthlyTimelineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Monthly 4-Week Distribution & Category Doughnut -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 4-Week Clusters -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base font-heading mb-1">4-Week Spending Rhythm</h3>
+                <p class="text-xs text-slate-500 mb-4">See how spending is distributed throughout weeks 1 to 4</p>
+                <div class="h-64">
+                    <canvas id="monthlyWeeksChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Monthly Categories -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base font-heading mb-1">Monthly Category Allocation</h3>
+                <p class="text-xs text-slate-500 mb-4">Distribution across all spending categories this month</p>
+                <div class="h-64 relative flex items-center justify-center">
+                    {% if monthly.categories %}
+                        <canvas id="monthlyCategoryChart"></canvas>
+                    {% else %}
+                        <p class="text-xs text-slate-400">No category transactions for this month.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= 3. YEARLY EXPENSE VIEW ================= -->
+    <div id="tab-content-yearly" class="tab-pane hidden space-y-6">
+        
+        <!-- Yearly KPI Metrics -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Annual Spending ({{ yearly.year }})</span>
+                <span class="text-2xl font-black text-rose-600 font-heading block mt-2">
+                    {{ currency }}{{ '{:,.2f}'.format(yearly.total_expense) }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Total 12-month outflow</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Annual Total Income</span>
+                <span class="text-2xl font-black text-emerald-600 font-heading block mt-2">
+                    +{{ yearly.total_income_lpa }} LPA
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Total: +{{ currency }}{{ '{:,.0f}'.format(yearly.total_income) }}</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Annual Net Savings</span>
+                <span class="text-2xl font-black {% if yearly.net_savings >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %} font-heading block mt-2">
+                    {{ currency }}{{ '{:,.2f}'.format(yearly.net_savings) }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Accumulated net surplus</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Peak Spending Month</span>
+                <span class="text-xl font-black text-slate-900 font-heading block mt-2">
+                    {{ yearly.peak_month }}
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Lowest: {{ yearly.lowest_month }}</span>
+            </div>
+        </div>
+
+        <!-- 12-Month Comparison Bar & Line Chart -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base font-heading">Yearly 12-Month Financial Comparison</h3>
+                    <p class="text-xs text-slate-500">Income bars (green), Expense bars (red), and Net Savings curve (blue)</p>
+                </div>
+                <span class="text-xs px-2.5 py-1 bg-slate-100 font-bold rounded-lg border text-slate-700">
+                    Year {{ yearly.year }}
+                </span>
+            </div>
+
+            <div class="h-88 w-full" style="height: 380px;">
+                <canvas id="yearlyComparisonChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Yearly Categories Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-base font-heading mb-1">Top Yearly Expense Categories</h3>
+                <p class="text-xs text-slate-500 mb-4">Ranked breakdown of spending allocations across the year</p>
+                
+                <div class="space-y-3">
+                    {% for cat, amt in zip(yearly.categories, yearly.category_amounts) %}
+                        {% if loop.index <= 6 %}
+                            {% set cat_pct = ((amt / yearly.total_expense) * 100)|round(1) if yearly.total_expense > 0 else 0 %}
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="font-bold text-slate-700">{{ cat }}</span>
+                                    <span class="font-bold text-slate-900">{{ currency }}{{ '{:,.2f}'.format(amt) }} ({{ cat_pct }}%)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-gradient-to-r from-emerald-500 to-teal-600 h-full rounded-full" style="width: {{ cat_pct }}%"></div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-xs text-slate-400">No expenses recorded for year {{ yearly.year }}.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Yearly Category Doughnut -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base font-heading mb-1">Yearly Distribution</h3>
+                    <p class="text-xs text-slate-500 mb-4">Category share</p>
+
+                    <div class="h-64 relative flex items-center justify-center">
+                        {% if yearly.categories %}
+                            <canvas id="yearlyCategoryChart"></canvas>
+                        {% else %}
+                            <p class="text-xs text-slate-400">No data.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    // Tab switching handler
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active', 'bg-emerald-600', 'text-white');
+            btn.classList.add('text-slate-700');
+        });
+
+        const activePane = document.getElementById(`tab-content-${tabName}`);
+        const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+        if (activePane) activePane.classList.remove('hidden');
+        if (activeBtn) {
+            activeBtn.classList.add('active', 'bg-emerald-600', 'text-white');
+            activeBtn.classList.remove('text-slate-700');
+        }
+
+        // Trigger resize so Chart.js recalculates dimensions
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Weekly Charts
+        const weeklyLabels = {{ weekly.labels|tojson }};
+        const weeklyCurrent = {{ weekly.current_week_data|tojson }};
+        const weeklyPrev = {{ weekly.prev_week_data|tojson }};
+        renderWeeklyExpensesChart('weeklyDetailedChart', weeklyLabels, weeklyCurrent, weeklyPrev);
+
+        {% if weekly.categories %}
+            renderWeeklyCategoryChart('weeklyCategoryDetailedChart', {{ weekly.categories|tojson }}, {{ weekly.category_amounts|tojson }});
+        {% endif %}
+
+        // 2. Monthly Charts
+        const monthDays = {{ monthly.days|tojson }};
+        const monthlyDaily = {{ monthly.daily_expenses|tojson }};
+        const monthlyCumulative = {{ monthly.cumulative_expenses|tojson }};
+        renderMonthlyTimelineChart('monthlyTimelineChart', monthDays, monthlyDaily, monthlyCumulative);
+
+        renderMonthlyWeeksChart('monthlyWeeksChart', {{ monthly.week_group_labels|tojson }}, {{ monthly.week_group_amounts|tojson }});
+
+        {% if monthly.categories %}
+            renderWeeklyCategoryChart('monthlyCategoryChart', {{ monthly.categories|tojson }}, {{ monthly.category_amounts|tojson }});
+        {% endif %}
+
+        // 3. Yearly Charts
+        const months = {{ yearly.months|tojson }};
+        const yearlyExpenses = {{ yearly.monthly_expenses|tojson }};
+        const yearlyIncomes = {{ yearly.monthly_incomes|tojson }};
+        const yearlyNet = {{ yearly.monthly_net_savings|tojson }};
+        renderYearlyComparisonChart('yearlyComparisonChart', months, yearlyExpenses, yearlyIncomes, yearlyNet);
+
+        {% if yearly.categories %}
+            renderWeeklyCategoryChart('yearlyCategoryChart', {{ yearly.categories|tojson }}, {{ yearly.category_amounts|tojson }});
+        {% endif %}
+
+        // Check if URL has tab param
+        const urlParams = new URLSearchParams(window.location.search);
+        const reqTab = urlParams.get('tab');
+        if (reqTab && ['weekly', 'monthly', 'yearly'].includes(reqTab)) {
+            switchTab(reqTab);
+        }
+    });
+</script>
+{% endblock %}

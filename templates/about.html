@@ -1,0 +1,429 @@
+{% extends 'base.html' %}
+
+{% block title %}About Our Team & Project BAASHA{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-6xl mx-auto">
+
+    <!-- Hero Header -->
+    <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden border border-slate-800">
+        <div class="absolute -right-16 -top-16 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute left-1/3 -bottom-20 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="max-w-2xl">
+                <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-emerald-950/90 border border-emerald-700/80 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>SRM Institute of Science and Technology &bull; 2nd Year CSE Core</span>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-black font-heading tracking-tight text-white mb-3">
+                    BAASHA <span class="text-amber-400 block text-2xl sm:text-3xl font-bold tracking-normal uppercase mt-1">Master Your Money</span>
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    An Investigatory Software Engineering & Applied Financial Analytics Project engineered by three friends from the <strong>Department of Computer Science and Engineering (Core)</strong> at <strong>SRM Institute of Science and Technology</strong>.
+                </p>
+                <div class="flex items-center space-x-3 mt-4 text-xs text-slate-400">
+                    <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">
+                        <i class="fa-solid fa-building-columns text-emerald-400 mr-1.5"></i> SRMIST Ramapuram
+                    </span>
+                    <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">
+                        <i class="fa-solid fa-code text-amber-400 mr-1.5"></i> 2nd Year CSE (Core)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Official Website Logo Emblem Display -->
+            <div class="flex-shrink-0">
+                <div class="p-2 rounded-3xl bg-slate-900/90 border border-slate-700/80 shadow-2xl overflow-hidden hover:scale-105 transition-transform duration-300">
+                    <img src="{{ url_for('static', filename='img/baasha_banner.png') }}" alt="BAASHA Master Your Money Logo" class="w-64 sm:w-72 h-auto rounded-2xl object-cover">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The 3 Friends / Team Showcase Section -->
+    <div>
+        <div class="text-center max-w-2xl mx-auto mb-8">
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-600">The Innovators & Creators</span>
+            <h2 class="text-3xl font-black font-heading text-slate-900 mt-1">Meet Our Team</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-2">
+                SRM Institute of Science and Technology &bull; 2nd Year Computer Science and Engineering (Core)
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Member 1: Kamallesh -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200 hover-lift flex flex-col justify-between relative overflow-hidden group">
+                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+                
+                <div>
+                    <!-- Member Photo Header -->
+                    <div class="relative mb-5 overflow-hidden rounded-2xl border border-slate-100 shadow-md aspect-[4/3] bg-slate-900 group">
+                        <img src="{{ url_for('static', filename='img/kamallesh.jpg') }}" alt="Kamallesh" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+                        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-emerald-500/90 text-white text-[11px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm">
+                                Lead Developer
+                            </span>
+                            <span class="text-white/90 text-xs font-semibold drop-shadow">
+                                <i class="fa-solid fa-code text-emerald-400 mr-1"></i> Core Arch
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Name & Subtitle -->
+                    <div class="mb-3">
+                        <h3 class="text-2xl font-black font-heading text-slate-900">Kamallesh</h3>
+                        <span class="text-xs font-bold text-emerald-600 block mt-0.5">Lead Full-Stack Developer</span>
+                        <span class="text-[11px] text-slate-500 font-medium">2nd Year CSE Core &bull; SRMIST</span>
+                    </div>
+
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Spearheaded the overall software architecture, Flask microservice routing, SQLite schema normalization, transaction lifecycle, and CRUD engine pipelines.
+                    </p>
+
+                    <!-- Contributions List -->
+                    <div class="space-y-1.5 text-xs text-slate-600 mb-5">
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-500 text-[10px] mt-1"></i>
+                            <span>Flask core application & REST API routes</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-500 text-[10px] mt-1"></i>
+                            <span>SQLite relational database & data migrations</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-emerald-500 text-[10px] mt-1"></i>
+                            <span>CSV export & data integrity safeguards</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skill Badges -->
+                <div class="pt-4 border-t border-slate-100 flex flex-wrap gap-1.5">
+                    <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-bold">Python</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-bold">Flask</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[11px] font-bold">SQLite</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[11px] font-bold">Backend</span>
+                </div>
+            </div>
+
+            <!-- Member 2: Janardhanan -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200 hover-lift flex flex-col justify-between relative overflow-hidden group">
+                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+
+                <div>
+                    <!-- Member Photo Header -->
+                    <div class="relative mb-5 overflow-hidden rounded-2xl border border-slate-100 shadow-md aspect-[4/3] bg-slate-900 group">
+                        <img src="{{ url_for('static', filename='img/janardhanan.jpg') }}" alt="Janardhanan" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+                        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-amber-500/90 text-white text-[11px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm">
+                                Analytics Engineer
+                            </span>
+                            <span class="text-white/90 text-xs font-semibold drop-shadow">
+                                <i class="fa-solid fa-chart-line text-amber-400 mr-1"></i> Cash Flow
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h3 class="text-2xl font-black font-heading text-slate-900">Janardhanan</h3>
+                        <span class="text-xs font-bold text-amber-600 block mt-0.5">Financial Analytics Engineer</span>
+                        <span class="text-[11px] text-slate-500 font-medium">2nd Year CSE Core &bull; SRMIST</span>
+                    </div>
+
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Formulated the financial intelligence models including predictive cash flow algorithms, automated Financial Health Score calculator (0-100), and burn-rate analytics.
+                    </p>
+
+                    <div class="space-y-1.5 text-xs text-slate-600 mb-5">
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-amber-500 text-[10px] mt-1"></i>
+                            <span>Predictive cash flow & wealth projection algorithms</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-amber-500 text-[10px] mt-1"></i>
+                            <span>Dynamic Financial Health scoring model</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-amber-500 text-[10px] mt-1"></i>
+                            <span>Smart savings heuristics & runway buffer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex flex-wrap gap-1.5">
+                    <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[11px] font-bold">Algorithms</span>
+                    <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[11px] font-bold">Predictive Modeling</span>
+                    <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[11px] font-bold">Data Science</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[11px] font-bold">Analytics</span>
+                </div>
+            </div>
+
+            <!-- Member 3: Suriya -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200 hover-lift flex flex-col justify-between relative overflow-hidden group">
+                <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+
+                <div>
+                    <!-- Member Photo Header -->
+                    <div class="relative mb-5 overflow-hidden rounded-2xl border border-slate-100 shadow-md aspect-[4/3] bg-slate-900 group">
+                        <img src="{{ url_for('static', filename='img/suriya.jpg') }}" alt="Suriya" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+                        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-blue-500/90 text-white text-[11px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm">
+                                UI/UX & Data Viz
+                            </span>
+                            <span class="text-white/90 text-xs font-semibold drop-shadow">
+                                <i class="fa-solid fa-chart-line text-blue-400 mr-1"></i> Visuals
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h3 class="text-2xl font-black font-heading text-slate-900">Suriya</h3>
+                        <span class="text-xs font-bold text-blue-600 block mt-0.5">UI/UX & Data Visualization Lead</span>
+                        <span class="text-[11px] text-slate-500 font-medium">2nd Year CSE Core &bull; SRMIST</span>
+                    </div>
+
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Engineered the interactive Chart.js visualization engine (Weekly, Monthly, Yearly), user experience journeys, responsive dashboards, and micro-interactions.
+                    </p>
+
+                    <div class="space-y-1.5 text-xs text-slate-600 mb-5">
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-blue-500 text-[10px] mt-1"></i>
+                            <span>Weekly, Monthly, Yearly Chart.js graphics</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-blue-500 text-[10px] mt-1"></i>
+                            <span>Tailwind CSS responsive design system</span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-blue-500 text-[10px] mt-1"></i>
+                            <span>Interactive modals & client-side experience</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex flex-wrap gap-1.5">
+                    <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[11px] font-bold">Chart.js</span>
+                    <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[11px] font-bold">TailwindCSS</span>
+                    <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[11px] font-bold">JavaScript</span>
+                    <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[11px] font-bold">UI/UX</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- How This Website Is Made: Architecture, Languages & Tools -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-8">
+        
+        <!-- Section Header -->
+        <div class="border-b border-slate-100 pb-5">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
+                <i class="fa-solid fa-code"></i>
+                <span>Engineering & Technology Blueprint</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900">How This Website Is Made</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                A complete breakdown of our system architecture, the coding languages written, and the developer tools utilized to engineer BAASHA.
+            </p>
+        </div>
+
+        <!-- 3-Column Grid: Architecture, Languages, Tools -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Column 1: How It Is Made (Architecture & Workflow) -->
+            <div class="p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-emerald-600/20">
+                            <i class="fa-solid fa-diagram-project"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base text-slate-900 font-heading">How It Is Made</h3>
+                            <span class="text-xs text-slate-500 block">System architecture & pipeline</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+                        <div class="p-3 rounded-xl bg-white border border-slate-200/70 shadow-2xs">
+                            <strong class="text-slate-900 block font-semibold mb-1">1. Full-Stack MVC Architecture</strong>
+                            <span>Incoming browser requests hit Flask routes, which execute business logic, query SQLite databases, and dynamically render Jinja2 templates styled with Tailwind CSS.</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white border border-slate-200/70 shadow-2xs">
+                            <strong class="text-slate-900 block font-semibold mb-1">2. Dynamic Financial Math & LPA</strong>
+                            <span>Client-side JavaScript calculates salary and business earnings into Annual LPA in real-time, while Python analytics compute weekly, monthly, and yearly cash flows.</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white border border-slate-200/70 shadow-2xs">
+                            <strong class="text-slate-900 block font-semibold mb-1">3. Production WSGI Server</strong>
+                            <span>Engineered with a streamlined Python package footprint and configured with Gunicorn WSGI and Procfile for continuous cloud deployment on platforms like Render.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <span>Pattern: <strong>MVC + RESTful API</strong></span>
+                    <span>Database: <strong>ACID SQLite3</strong></span>
+                </div>
+            </div>
+
+            <!-- Column 2: Coding Languages Used -->
+            <div class="p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-blue-600/20">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base text-slate-900 font-heading">Coding Languages</h3>
+                            <span class="text-xs text-slate-500 block">Languages written by our team</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-xs text-slate-600">
+                        <div class="flex items-start space-x-3 p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs">
+                            <i class="fa-brands fa-python text-emerald-600 text-xl mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-slate-900 block">Python (3.12 / 3.13)</span>
+                                <span class="text-slate-500 text-[11px]">Backend core application, route dispatching, financial calculations, session authentication, and CSV exports.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs">
+                            <i class="fa-brands fa-js text-amber-500 text-xl mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-slate-900 block">JavaScript (ES6+)</span>
+                                <span class="text-slate-500 text-[11px]">Chart.js visualization lifecycle, interactive modals, and real-time client-side LPA calculation.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs">
+                            <i class="fa-brands fa-html5 text-orange-500 text-xl mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-slate-900 block">HTML5 & Jinja2</span>
+                                <span class="text-slate-500 text-[11px]">Semantic web structure, template inheritance, dynamic macros, and secure data binding.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs">
+                            <i class="fa-brands fa-css3-alt text-blue-500 text-xl mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-slate-900 block">CSS3 & Tailwind CSS</span>
+                                <span class="text-slate-500 text-[11px]">Responsive utility styling, custom color variables, micro-animations, and glassmorphic designs.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs">
+                            <i class="fa-solid fa-database text-indigo-600 text-lg mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-slate-900 block">SQL (Structured Query Language)</span>
+                                <span class="text-slate-500 text-[11px]">Relational tables, schema migrations, parameterized queries, and ACID-safe database transactions.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <span>Frontend: <strong>HTML5 &bull; CSS3 &bull; JS</strong></span>
+                    <span>Backend: <strong>Python &bull; SQL</strong></span>
+                </div>
+            </div>
+
+            <!-- Column 3: Tools & Libraries Used -->
+            <div class="p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex flex-col justify-between space-y-4">
+                <div>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-amber-500/20">
+                            <i class="fa-solid fa-toolbox"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base text-slate-900 font-heading">Tools & Libraries</h3>
+                            <span class="text-xs text-slate-500 block">Frameworks, visualization & utilities</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-xs text-slate-600">
+                        <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-server text-emerald-600 text-sm"></i>
+                                <div>
+                                    <span class="font-bold text-slate-900 block leading-tight">Flask 3.1</span>
+                                    <span class="text-[10px] text-slate-400">WSGI Web Microframework</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-md">Backend</span>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-chart-line text-blue-600 text-sm"></i>
+                                <div>
+                                    <span class="font-bold text-slate-900 block leading-tight">Chart.js 4.4</span>
+                                    <span class="text-[10px] text-slate-400">Interactive Canvas Graphs</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md">Visuals</span>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-database text-amber-600 text-sm"></i>
+                                <div>
+                                    <span class="font-bold text-slate-900 block leading-tight">SQLite3</span>
+                                    <span class="text-[10px] text-slate-400">Zero-Config Relational DB</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-50 text-amber-700 rounded-md">Storage</span>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-bolt text-teal-600 text-sm"></i>
+                                <div>
+                                    <span class="font-bold text-slate-900 block leading-tight">Gunicorn 26</span>
+                                    <span class="text-[10px] text-slate-400">UNIX WSGI HTTP Server</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-teal-50 text-teal-700 rounded-md">Production</span>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-palette text-indigo-600 text-sm"></i>
+                                <div>
+                                    <span class="font-bold text-slate-900 block leading-tight">Tailwind CSS 3.4</span>
+                                    <span class="text-[10px] text-slate-400">Utility-First Design</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md">Styling</span>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 shadow-2xs flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid fa-icons text-rose-600 text-sm"></i>
+                                <div>
+                                    <span class="font-bold text-slate-900 block leading-tight">FontAwesome 6</span>
+                                    <span class="text-[10px] text-slate-400">Vector UI Icons</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-rose-50 text-rose-700 rounded-md">Assets</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <span>Dev Environment: <strong>VS Code / Antigravity</strong></span>
+                    <span>Hosting: <strong>Render Cloud</strong></span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
